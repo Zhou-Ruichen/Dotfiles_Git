@@ -1,0 +1,12 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Personal history files
+.zsh_history
+.bash_history
+
+# Zsh cache files
+*.zwc
+.zcompdump*
