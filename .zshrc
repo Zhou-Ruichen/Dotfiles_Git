@@ -6,25 +6,40 @@ fi
 # ===== Basic environment =====
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/bin:$HOME/.local/bin:$PATH"
-export EDITOR='code'   # 改成你常用的编辑器：code / nvim / vim
+export EDITOR='nano'  # 在服务器上建议使用 nano 或 vim
+
+# --- 智能添加 PATH ---
+# Linux server path
+if [[ "$(uname)" == "Linux" ]]; then
+  export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+fi
+# macOS Homebrew path
+if [[ "$(uname)" == "Darwin" ]]; then
+  export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+fi
 
 # ===== Oh My Zsh & theme =====
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git)  # 其余插件用 brew 版本手动 source（更稳定）
+plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
-# ===== Brew-based plugins =====
-# 自动建议 & 语法高亮（先安装：brew install zsh-autosuggestions zsh-syntax-highlighting）
-[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-[[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# FZF（模糊搜索，先执行：$(brew --prefix)/opt/fzf/install --all）
+# ===== Cross-platform plugins =====
+# FZF (模糊搜索)
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# --- OS-specific plugins ---
+if [[ "$(uname)" == "Darwin" ]]; then
+  # macOS (Homebrew) specific plugins
+  # zsh-autosuggestions & zsh-syntax-highlighting
+  [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  [[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ "$(uname)" == "Linux" ]]; then
+  # Linux (apt/dnf) specific plugins
+  # 提示: 在 Debian/Ubuntu 上, 请先执行: sudo apt install zsh-autosuggestions zsh-syntax-highlighting
+  [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
 
 # ===== History & options =====
 HISTSIZE=50000
@@ -33,15 +48,10 @@ setopt HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS SHARE_HISTORY
 setopt AUTO_CD AUTO_PUSHD EXTENDED_GLOB CORRECT
 autoload -Uz compinit && compinit -C
 
-# ===== Prompt (if not using p10k lean) =====
-# autoload -U colors && colors
-# setopt prompt_subst
-# PROMPT='%{$fg[cyan]%}%n@%m %{$fg[yellow]%}%~ %{$reset_color%}$(git_prompt_info)❯ '
-
-# ===== Aliases =====
-alias ls='ls -GF'
-alias la='ls -AGF'
-alias ll='ls -lAGF'
+# ===== Aliases (通用部分) =====
+alias ls='ls -GF --color=auto'
+alias la='ls -AGF --color=auto'
+alias ll='ls -lAGF --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias cp='cp -iv'
@@ -50,22 +60,22 @@ alias rm='rm -i'
 alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
 alias c='clear'
-alias macver='sw_vers'
 alias zshconfig='$EDITOR ~/.zshrc'
 alias zshsource='source ~/.zshrc'
 
-# ===== macOS light/dark aware LSCOLORS =====
-function set_macos_terminal_colors() {
-  if [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]]; then
-    export LSCOLORS="Gxfxcxdxbxegedabagacad"
-  else
-    export LSCOLORS="exfxcxdxbxegedabagacad"
-  fi
-}
-set_macos_terminal_colors
+# --- OS-specific Aliases & Functions ---
+if [[ "$(uname)" == "Darwin" ]]; then
+  alias macver='sw_vers'
+  # macOS light/dark aware LSCOLORS
+  function set_macos_terminal_colors() {
+    if [[ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" == "Dark" ]]; then
+      export LSCOLORS="Gxfxcxdxbxegedabagacad"
+    else
+      export LSCOLORS="exfxcxdxbxegedabagacad"
+    fi
+  }
+  set_macos_terminal_colors
+fi
 
 # ===== Powerlevel10k (if installed) =====
-[[ -f /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme ]] && \
-  source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
-
