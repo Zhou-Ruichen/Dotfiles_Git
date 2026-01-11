@@ -11,3 +11,4 @@
 *.zwc
 .zcompdump*
 transparent.lua.bak
+.wezterm.lua.bak
