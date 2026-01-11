@@ -10,3 +10,4 @@
 # Zsh cache files
 *.zwc
 .zcompdump*
+transparent.lua.bak
